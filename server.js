@@ -10,6 +10,9 @@ app.use(express.urlencoded({ extended: true }));
 const categoryRouter = require("./router/categoryRouter");
 const productRouter = require("./router/productRouter");
 const userRouter = require("./router/userRouter");
+const brandRouter = require("./router/brandRouter");
+const orderRouter = require("./router/orderRouter");
+const adminRouter = require("./router/adminRouter");
 
 app.get("/", (req, res) => {
     res.send("Welcome to HealthMate Backend");
@@ -18,6 +21,9 @@ app.get("/", (req, res) => {
 app.use("/api/category", categoryRouter);
 app.use("/api/product", productRouter);
 app.use("/api/user", userRouter);
+app.use("/api/brand", brandRouter);
+app.use("/api/order", orderRouter);
+app.use("/api/admin", adminRouter);
 
 app.use((err, req, res, next) => {
     res.status(500).json({

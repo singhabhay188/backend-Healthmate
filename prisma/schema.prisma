@@ -29,11 +29,9 @@ model Admin {
 model Product {
   id            String         @id @default(cuid())
   name          String
-  saltId        String?        // Foreign key to Salt
-  salt          Salt?          @relation(fields: [saltId], references: [id])
   ratingSum     Int           @default(0)
   ratingTotal   Int           @default(0)
-  description   String?
+  description   String
   imageLink     String[]
   reviews       Review[]
   type          MedsType
@@ -41,20 +39,12 @@ model Product {
   productType   ProductType
   categories    Category[]   @default([])
   brand         String
+  price         Int         @default(0)
 
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   
   orderItems    OrderItem[]    @relation("ProductItem")
-}
-
-// Salt model
-model Salt {
-  id          String   @id @default(cuid())
-  name        String
-  power       Int       @default(0)
-  description String
-  products    Product[]
 }
 
 // Review model

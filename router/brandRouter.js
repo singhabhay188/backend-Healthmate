@@ -2,16 +2,16 @@ const express = require('express');
 const router = express.Router();
 const prisma = require('../db');
 
-const categories = require('../utils/categories');
+const brands = require('../utils/brands');
 
-//to get all categories
-// api/category/all
+//to get all brands
+// api/brand/all
 router.get('/all', async (req, res) => {
     try {
         res.status(200).json({
             success: true,
-            count: categories.length,
-            data: categories
+            count: brands.length,
+            data: brands
         });
     } catch (error) {
         res.status(500).json({
@@ -22,16 +22,14 @@ router.get('/all', async (req, res) => {
     }
 });
 
-//to get products of a particular category
-// api/category/:categoryName
-router.get('/:categoryName', async (req, res) => {
-    const {categoryName} = req.params;
+//to get products with exact brand name
+// api/brand/:brandName
+router.get('/:brandName', async (req, res) => {
+    const {brandName} = req.params;
     try {
         const products = await prisma.product.findMany({
             where: {
-                categories: {
-                    has: categoryName
-                }
+                brand: brandName
             }
         });
         res.status(200).json({success: true, data: products});

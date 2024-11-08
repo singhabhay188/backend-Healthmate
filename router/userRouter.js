@@ -5,6 +5,7 @@ const prisma = require('../db');
 
 // Create a new user
 //here email is optional
+// api/user/signup
 router.post('/signup', async (req, res) => {
 
     const { name, email, phone } = req.body;
@@ -36,6 +37,7 @@ router.post('/signup', async (req, res) => {
 
 //login with phone 
 //user will be asked for otp
+// api/user/login
 router.post('/login',async (req,res) => {
     const {phone} = req.body;
 
@@ -55,6 +57,7 @@ router.post('/login',async (req,res) => {
 });
 
 //default otp rawat is 1234
+// api/user/verifyOtp
 router.post('/verifyOtp',async (req,res) => {
     const {phone,otp} = req.body;
 
@@ -82,11 +85,14 @@ router.post('/verifyOtp',async (req,res) => {
     }
 });
 
+//to verify if user is logged in
+// api/user/verifyLoggedIn
 router.get('/verifyLoggedIn',authenticateToken,async (req,res) => {
     res.status(200).json({success: true});
 });
 
 // Get user's orders
+// api/user/orders
 router.get('/orders', authenticateToken, async (req, res) => {
 
     try {
