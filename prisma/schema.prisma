@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Prisma schema
+
+// User model
+model User {
+  id      String   @id @default(cuid())
+  name    String
+  email   String?  @unique
+  phone   String
+  orders  Order[]
+}
+
+// Admin model
+model Admin {
+  id    String  @id @default(cuid())
+  name  String
+  email String  @unique
+}
+
+// Product model
+model Product {
+  id            String         @id @default(cuid())
+  name          String
+  saltId        String?        // Foreign key to Salt
+  salt          Salt?          @relation(fields: [saltId], references: [id])
+  ratingSum     Int           @default(0)
+  ratingTotal   Int           @default(0)
+  description   String?
+  imageLink     String[]
+  reviews       Review[]
+  type          MedsType
+  quantity      Int?
+  productType   ProductType
+  categories    Category[]   @default([])
+  brand         String
+
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  
+  orderItems    OrderItem[]    @relation("ProductItem")
+}
+
+// Salt model
+model Salt {
+  id          String   @id @default(cuid())
+  name        String
+  power       Int       @default(0)
+  description String
+  products    Product[]
+}
+
+// Review model
+model Review {
+  id        String   @id @default(cuid())
+  name      String
+  message   String
+  rating    Int
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+}
+
+// Order model
+model Order {
+  id          String       @id @default(cuid())
+  userId      String
+  totalPrice  Int
+  status      OrderStatus
+  orderItems  OrderItem[]  @relation("OrderId")
+  user        User         @relation(fields: [userId], references: [id])
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+// OrderItem model (Join table for products in orders)
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  order     Order   @relation("OrderId",fields: [orderId], references: [id])
+  product   Product @relation("ProductItem",fields: [productId], references: [id])
+}
+
+// Enum for Product Types
+enum ProductType {
+  capsule
+  tablet
+  powder
+  sachet
+  other
+}
+
+// Enum for Meds Types
+enum MedsType {
+  Meds
+  Supplement
+  Cosmetic
+  Food
+}
+
+// Enum for Order Status
+enum OrderStatus {
+  pending
+  completed
+  canceled
+  refunded
+}
+
+// Enum for Categories
+enum Category {
+  Hair_Care
+  Oral_Care
+  Sexual_Wellness
+  Skin_Care
+  Feminine_Care
+  Baby_Care
+  Elderly_Care
+  Men_Grooming
+  Vitamin_And_Nutrition
+  Fitness_Supplements
+  Nutritional_Drinks
+  Healthy_Snacks
+  Herbal_Juice
+  Monitoring_Devices
+  Rehydration_Beverages
+  Immunity_Boosters
+  Medicine
+  Stomach_Care
+  Cold_And_Cough
+  Pain_Relief
+  First_Aid
+  Diabetes
+  Eye_And_Ear_Care
+  Skin_Infection
+  Supports_And_Braces
+}
