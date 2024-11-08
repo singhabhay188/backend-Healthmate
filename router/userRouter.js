@@ -91,25 +91,4 @@ router.get('/verifyLoggedIn',authenticateToken,async (req,res) => {
     res.status(200).json({success: true});
 });
 
-// Get user's orders
-// api/user/orders
-router.get('/orders', authenticateToken, async (req, res) => {
-
-    try {
-        let userId = req.user.id;
-        console.log(userId);
-        const orders = await prisma.order.findMany({
-            where: { userId: userId },
-            include: {
-                orderItems: {
-                    include: { product: true }
-                }
-            }
-        });
-        res.json(orders);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
 module.exports = router;

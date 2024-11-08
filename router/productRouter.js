@@ -3,10 +3,10 @@ const router = express.Router();
 const prisma = require('../db');
 
 //to get all products
-// api/product/all (maxi)
+// api/product/all (maximum 10 products)
 router.get('/all',async (req,res) => {
     const products = await prisma.product.findMany({
-        take: 15
+        take: 10
     });
     res.status(200).json({success: true,data: products});
 });

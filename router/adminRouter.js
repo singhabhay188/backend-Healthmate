@@ -97,14 +97,21 @@ router.get('/order/:id', async (req, res) => {
 //to update order status
 // api/admin/order/:id
 router.post('/order/:id', async (req, res) => {
-    const {id} = req.params;
-    const {status} = req.body;
+    try {
+        const {id} = req.params;
+        const {status} = req.body;
 
-    const order = await prisma.order.update({
-        where: {id: id},
-        data: {status: status}
-    });
-    res.status(200).json({success: true, data: order});
+        const order = await prisma.order.update({
+            where: {id: id},
+            data: {status: status}
+        });
+        res.status(200).json({success: true, data: order});
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
 });
 
 module.exports = router;
