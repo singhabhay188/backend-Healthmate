@@ -13,6 +13,7 @@ const userRouter = require("./router/userRouter");
 const brandRouter = require("./router/brandRouter");
 const orderRouter = require("./router/orderRouter");
 const adminRouter = require("./router/adminRouter");
+const chatRouter = require("./router/chatRouter");
 
 app.get("/", (req, res) => {
     res.send("Welcome to HealthMate Backend");
@@ -24,6 +25,7 @@ app.use("/api/user", userRouter);
 app.use("/api/brand", brandRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/admin", adminRouter);
+app.use("/api/chat", chatRouter);
 
 app.use((err, req, res, next) => {
     res.status(500).json({
