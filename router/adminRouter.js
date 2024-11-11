@@ -2,6 +2,25 @@ const express = require('express');
 const router = express.Router();
 const prisma = require('../db');
 
+//check admin
+// api/admin/login
+router.post('/login',async (req,res)=>{
+    try{
+        const {email,password} = req.body;
+    
+        if(email == 'admin@gmail.com' && password=="Admin@123"){
+            return res.status(200).json({success:true,"message":"Admin logged in success"});
+        }
+        res.status(400).json({success:false,"message":"Admin logged in failed"});
+    }
+    catch(e){
+        res.status(500).json({
+            success: false,
+            message: e.message
+        });
+    }
+});
+
 //to add new product
 // api/admin/new
 router.post('/new', async (req, res) => {
@@ -42,7 +61,14 @@ router.post('/new', async (req, res) => {
 // api/admin/orders (maximum 10 orders)
 router.get('/orders', async (req, res) => {
     try {
-        const orders = await prisma.order.findMany({
+        const orders = await prisma.order.findFirst({
+            include:{
+                orderItems:{
+                    include:{
+                        product:true
+                    }
+                }
+            },
             take: 10
         });
         res.status(200).json({success: true, data: orders});

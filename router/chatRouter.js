@@ -3,7 +3,7 @@ const router = express.Router();
 
 //to chat with the bot
 // api/chat/reply
-router.get('/reply', async (req, res) => {
+router.post('/reply', async (req, res) => {
     const {message} = req.body;
 
     if(!message) {
