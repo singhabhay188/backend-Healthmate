@@ -52,6 +52,13 @@ router.get('/search',async (req,res)=>{
     }
 });
 
+//to get product by id
+// api/prodcut/:id
+router.get('/:id',async (req,res)=>{
+    const {id} = req.params;
+    const product = await prisma.product.findUnique({where: {id}});
+    res.status(200).json({success: true,data: product});
+});
 
 
 module.exports = router;

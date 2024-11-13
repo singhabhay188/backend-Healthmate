@@ -7,8 +7,7 @@ const prisma = require('../db');
 //here email is optional
 // api/user/signup
 router.post('/signup', async (req, res) => {
-
-    const { name, email, phone } = req.body;
+    const { name, email=null, phone } = req.body;
 
     try {
         if (!name || !phone) {
@@ -16,15 +15,13 @@ router.post('/signup', async (req, res) => {
         }
 
         //ensure phone is unique
-        let existingUser = prisma.user.findUnique({
+        let existingUser = await prisma.user.findFirst({
             where:{
                 phone: phone
             }
         });
 
         if(existingUser) return res.status(400).json({error: 'Phone no already exist.'});
-
-        
 
         const user = await prisma.user.create({
             data: { name, email, phone }
@@ -42,7 +39,7 @@ router.post('/login',async (req,res) => {
     const {phone} = req.body;
 
     try {
-        let existingUser = prisma.user.findUnique({
+        let existingUser = await prisma.user.findFirst({
             where:{
                 phone: phone
             }
