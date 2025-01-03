@@ -39,15 +39,19 @@ router.post('/login',async (req,res) => {
     const {phone} = req.body;
 
     try {
+        if (!phone) {
+            return res.status(400).json({ success: false, error: 'Phone is required' });
+        }
+
         let existingUser = await prisma.user.findFirst({
             where:{
                 phone: phone
             }
         });
 
-        if(!existingUser) return res.status(400).json({error: 'User not found.'});
-
-        res.status(200).json({message: 'OTP sent to phone.'});
+        if(!existingUser) return res.status(400).json({success: false, error: 'User not found.'});
+           // reality mei otp send krna padega
+        res.status(200).json({success: true, message: 'OTP sent to phone.'});
     } catch (error) {
         res.status(400).json({error: error.message});
     }
