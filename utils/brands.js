@@ -9,4 +9,4 @@ const brands = [
     { id: 8, name: 'Organic India', image: 'https://onemg.gumlet.io/2024-11%2F1731047747_Organic+India.png?format=auto' }
 ];
 
-module.exports = brands
+export default brands;

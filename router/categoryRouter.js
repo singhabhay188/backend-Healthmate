@@ -1,31 +1,32 @@
-const express = require('express');
-const router = express.Router();
-const prisma = require('../db');
+import express from "express";
+import prisma from "../db.js";
+import authenticateToken from "../middleware/authenticateToken.js";
 
-const categories = require('../utils/categories');
+const router = express.Router();
+import categories from "../utils/categories.js";
 
 //to get all categories
 // api/category/all
-router.get('/all', async (req, res) => {
+router.get('/all', authenticateToken, async (req, res) => {
     try {
         res.status(200).json({
             success: true,
-            count: categories.length,
-            data: categories
+            message: 'Categories fetched successfully',
+            data: { count: categories.length, categories }
         });
     } catch (error) {
         res.status(500).json({
             success: false,
-            error: 'Server Error',
-            message: error.message
+            message: 'Server Error',
+            error: error.message
         });
     }
 });
 
 //to get products of a particular category
 // api/category/:categoryName
-router.get('/:categoryName', async (req, res) => {
-    const {categoryName} = req.params;
+router.get('/:categoryName', authenticateToken, async (req, res) => {
+    const { categoryName } = req.params;
     try {
         const products = await prisma.product.findMany({
             where: {
@@ -34,10 +35,10 @@ router.get('/:categoryName', async (req, res) => {
                 }
             }
         });
-        res.status(200).json({success: true, data: products});
+        res.status(200).json({ success: true, message: 'Products fetched successfully', data: products });
     } catch (error) {
-        res.status(500).json({success: false, message: error.message});
+        res.status(500).json({ success: false, message: 'Server Error', error: error.message });
     }
 });
 
-module.exports = router;
+export default router;

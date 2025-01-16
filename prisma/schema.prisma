@@ -7,15 +7,56 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Prisma schema
-
 // User model
 model User {
-  id      String   @id @default(cuid())
-  name    String
-  email   String?  @unique
-  phone   String
-  orders  Order[]
+  id            String      @id @default(cuid())
+  name          String
+  email         String?     @unique
+  phone         String
+  addresses     Address[]
+  orders        Order[]
+  cart          Cart?
+  reviews       Review[]
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+// Cart model
+model Cart {
+  id        String      @id @default(cuid())
+  userId    String      @unique
+  user      User        @relation(fields: [userId], references: [id])
+  items     ProductInfo[]
+  totalP    Float      @default(0)
+
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+// ProductInfo model
+model ProductInfo {
+  id        String   @id @default(cuid())
+  quantity  Int      @default(1)
+  productId String
+  orderId   String?
+  cartId    String?
+
+  product   Product  @relation(fields: [productId], references: [id])
+  order     Order?   @relation(fields: [orderId], references: [id])
+  cart      Cart?    @relation(fields: [cartId], references: [id])
+}
+
+// Order model
+model Order {
+  id        String     @id @default(cuid())
+  userId    String
+  user      User       @relation(fields: [userId], references: [id])
+  items     ProductInfo[]
+  status    OrderStatus @default(PENDING)
+  total     Float
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 }
 
 // Admin model
@@ -23,6 +64,7 @@ model Admin {
   id    String  @id @default(cuid())
   name  String
   email String  @unique
+  password String
 }
 
 // Product model
@@ -33,51 +75,57 @@ model Product {
   ratingTotal   Int           @default(0)
   description   String
   imageLink     String[]
+  thumbnail     String
   reviews       Review[]
   type          MedsType
+  discountPer   Int          @default(0)
   quantity      Int?
   productType   ProductType
-  categories    Category[]   @default([])
+  categories    Category[]    @default([])
   brand         String
-  price         Int         @default(0)
+  price         Int          @default(0)
 
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
   
-  orderItems    OrderItem[]    @relation("ProductItem")
+  orderItems    ProductInfo[]
 }
 
 // Review model
 model Review {
-  id        String   @id @default(cuid())
-  name      String
-  message   String
-  rating    Int
+  id        String    @id @default(cuid())
+  userId    String
   productId String
-  product   Product  @relation(fields: [productId], references: [id])
+  rating    Int       @default(3)
+  comment   String?
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
-// Order model
-model Order {
-  id          String       @id @default(cuid())
+// Address model
+model Address {
+  id          String    @id @default(cuid())
   userId      String
-  totalPrice  Int
-  status      OrderStatus
-  orderItems  OrderItem[]  @relation("OrderId")
-  user        User         @relation(fields: [userId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
+  line1       String
+  line2       String?
+  city        String
+  state       String
+  pincode     String
 
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
-// OrderItem model (Join table for products in orders)
-model OrderItem {
-  id        String  @id @default(cuid())
-  orderId   String
-  productId String
-  quantity  Int
-  order     Order   @relation("OrderId",fields: [orderId], references: [id])
-  product   Product @relation("ProductItem",fields: [productId], references: [id])
+// ENUM Order Status
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
 }
 
 // Enum for Product Types
@@ -87,6 +135,7 @@ enum ProductType {
   powder
   sachet
   other
+  liquid
 }
 
 // Enum for Meds Types
@@ -95,14 +144,6 @@ enum MedsType {
   Supplement
   Cosmetic
   Food
-}
-
-// Enum for Order Status
-enum OrderStatus {
-  pending
-  completed
-  canceled
-  refunded
 }
 
 // Enum for Categories
@@ -132,4 +173,4 @@ enum Category {
   Eye_And_Ear_Care
   Skin_Infection
   Supports_And_Braces
-}   
+}

@@ -1,12 +1,26 @@
-const express = require('express');
+import { z } from "zod";
+import express from "express";
+import prisma from "../db.js";
+import authenticateToken from "../middleware/authenticateToken.js";
+
 const router = express.Router();
-const prisma = require('../db');
+
+const getProductSchema = z.object({
+    order: z.enum(['asc', 'desc']).optional(),
+    type: z.enum(['name', 'price']).optional()
+});
 
 //to get all products
 // api/product/all (maximum 15 products)
-router.get('/all',async (req,res) => {
+router.get('/all',authenticateToken, async (req,res) => {
     try{
         let {order,type} = req.body;
+
+        const result = getProductSchema.safeParse({order,type});
+        if(!result.success){
+            throw new Error('Invalid inputs are passed');
+        }
+
         //order -> asc | desc
         //type ->  name | price
 
@@ -14,15 +28,15 @@ router.get('/all',async (req,res) => {
             const products = await prisma.product.findMany({
                 take: 15
             });
-            return res.status(200).json({success: true,data: products});
+            return res.status(200).json({success: true, message: '', data: products});
         }
             const products = await prisma.product.findMany({
                 take: 15,
                 orderBy:{
-                    type:order
+                    type: order
                 }
             });
-            res.status(200).json({success: true,data: products});
+            res.status(200).json({success: true,message: '', data: products});
         
     }
     catch(e){
@@ -34,14 +48,14 @@ router.get('/all',async (req,res) => {
 //search products starting with
 //needs minimum 3 characters
 // api/product/search?query={name}
-router.get('/search',async (req,res)=>{
+router.get('/search',authenticateToken, async (req,res)=>{
     try{
         const {query} = req.query;
         if(!query || query.length < 3) return res.status(400).json({success: false,message: 'Query must be at least 3 characters long.'});
         const  products = await prisma.product.findMany({
             where: {
                 name: {
-                    startsWith: query,
+                    contains: query,
                     mode: 'insensitive'
                 }
             }
@@ -54,11 +68,10 @@ router.get('/search',async (req,res)=>{
 
 //to get product by id
 // api/prodcut/:id
-router.get('/:id',async (req,res)=>{
+router.get('/:id',authenticateToken, async (req,res)=>{
     const {id} = req.params;
     const product = await prisma.product.findUnique({where: {id}});
     res.status(200).json({success: true,data: product});
 });
 
-
-module.exports = router;
+export default router;

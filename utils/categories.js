@@ -26,5 +26,4 @@ const categories = [
     { id: 25, name: 'Supports_And_Braces', description: 'Body support and orthopedic products' }
 ];
 
-
-module.exports = categories
+export default categories;
